@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sort"
@@ -53,7 +54,7 @@ func (c *Client) SetAccount(account *Account) {
 func (c *Client) fillRequestData(params Params) Params {
 	params["appid"] = c.account.appID
 	params["mch_id"] = c.account.mchID
-	params["nonce_str"] = nonceStr()
+	params["nonce_str"] = NonceStr()
 	params["sign_type"] = c.signType
 	params["sign"] = c.Sign(params)
 	return params
@@ -175,6 +176,7 @@ func (c *Client) processResponseXml(xmlStr string) (Params, error) {
 	if params.ContainsKey("return_code") {
 		returnCode = params.GetString("return_code")
 	} else {
+		fmt.Println(xmlStr)
 		return nil, errors.New("no return_code in XML")
 	}
 	if returnCode == Fail {
@@ -183,9 +185,11 @@ func (c *Client) processResponseXml(xmlStr string) (Params, error) {
 		if c.ValidSign(params) {
 			return params, nil
 		} else {
+			fmt.Println(xmlStr)
 			return nil, errors.New("invalid sign value in XML")
 		}
 	} else {
+		fmt.Println(xmlStr)
 		return nil, errors.New("return_code value is invalid in XML")
 	}
 }

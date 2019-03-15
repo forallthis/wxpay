@@ -5,11 +5,12 @@ import (
 	"crypto/tls"
 	"encoding/pem"
 	"encoding/xml"
-	"golang.org/x/crypto/pkcs12"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/pkcs12"
 )
 
 func XmlToMap(xmlStr string) Params {
@@ -29,12 +30,13 @@ func XmlToMap(xmlStr string) Params {
 		case xml.CharData: // 标签内容
 			content := string([]byte(token))
 			value = content
-		}
-		if key != "xml" {
-			if value != "\n" {
-				params.SetString(key, value)
+			if key != "xml" {
+				if strings.TrimSpace(value) != "" {
+					params.SetString(key, value)
+				}
 			}
 		}
+
 	}
 
 	return params
@@ -58,7 +60,7 @@ func MapToXml(params Params) string {
 }
 
 // 用时间戳生成随机字符串
-func nonceStr() string {
+func NonceStr() string {
 	return strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
 }
 
