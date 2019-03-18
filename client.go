@@ -376,7 +376,7 @@ func (c *Client) ShortUrl(params Params) (Params, error) {
 	return c.processResponseXml(xmlStr)
 }
 
-// 授权码查询OPENID接口
+// AuthCodeToOpenid 授权码查询OPENID接口
 func (c *Client) AuthCodeToOpenid(params Params) (Params, error) {
 	var url string
 	if c.account.isSandbox {
@@ -389,4 +389,20 @@ func (c *Client) AuthCodeToOpenid(params Params) (Params, error) {
 		return nil, err
 	}
 	return c.processResponseXml(xmlStr)
+}
+
+// GenSignKey 获取沙箱验签秘钥
+func (c *Client) GenSignKey(params Params) (Params, error) {
+	xmlStr, err := c.postWithoutCert(SandboxGetSignKeyURL, params)
+	if err != nil {
+		return nil, err
+	}
+
+	retParams := XmlToMap(xmlStr)
+	if !retParams.ContainsKey("return_code") {
+		fmt.Println(xmlStr)
+		return nil, errors.New("no return_code in XML")
+	}
+	return retParams, nil
+
 }
